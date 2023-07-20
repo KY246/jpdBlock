@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="icon.png">
+    <style>
+      body{
+        background: #181818;
+        color: #bbb;
+        margin: 0px;
+        
+        font-size: 20px;
+        
+        padding-left: 10vw;
+        padding-right: 10vw;
+        padding-bottom: 35vh;
+        
+        overflow-x: hidden;
+      }
+      h1{
+        font-size: 50px;
+        text-align: center;
+      }
+      h2{
+        font-size: 30px;
+      }
+      #settings{
+        cursor: pointer;
+        
+        position: fixed;
+        bottom: 0px;
+        left: 0px;
+        
+        width: 300px;
+        height: 70px;
+        
+        border-top: 1px solid #bbb;
+        padding-top: 15px;
+        
+        margin: 0px;
+      }
+      select, input{
+        font-size: inherit;
+        width: 80px;
+      }
+      input[type="checkbox"]{
+        width: 20px;
+        paddin: 0px;
+        margin: 0px;
+      }
+      .br{
+        display: block;
+        height: 10px;
+        margin: 0px;
+        padding: 0px;
+      }
+      .tab{
+        width: 20px;
+        display: inline-block;
+      }
+      .info{
+        background-color: #777;
+        color: #fff;
+        width: 25px;
+        height: 25px;
+        border-radius: 13px;
+        text-align: center;
+        vertical-align: center;
+        padding: 0px;
+        display: inline-block;
+        cursor: default;
+      }
+      .info > div{
+        background-color: #777;
+        border-radius: 13px;
+        position: absolute;
+        width: 200px;
+        padding: 10px;
+        display: none;
+        font-size: 15px;
+      }
+      .info:hover > div{
+        display: block;
+      }
+      *{
+        box-sizing: border-box;
+      }
+      #add{
+        padding: 2vh;
+        text-align: center;
+        border: 1px solid #2b6ddf;
+        border-radius: 15px;
+        cursor: pointer;
+      }
+      #submit{
+        display: block;
+        position: absolute;
+        width: 20vw;
+        min-height: 10vh;
+        padding-top: 2vh;
+        padding-bottom: 2vh;
+        text-align: center;
+        left: 40vw;
+        border: 1px solid #2b6ddf;
+        border-radius: 15px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Settings</h1>
+    <br/>
+    <h2>Settings on jpdb.io</h2>
+    <span class="tab"></span>
+    Points earned for getting a card wrong:
+    <select id="wrong_points">
+      <option value="-4">-4</option>
+      <option value="-3">-3</option>
+      <option value="-2">-2</option>
+      <option value="-1">-1</option>
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+    <p class="br"></p>
+    <span class="tab"></span>
+    Points earned for getting a card right:
+    <select id="right_points">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+    <p class="br"></p>
+    <span class="tab"></span>
+    Points earned for doing a new card:
+    <select id="new_points">
+      <option value="-4">-4</option>
+      <option value="-3">-3</option>
+      <option value="-2">-2</option>
+      <option value="-1">-1</option>
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+    <p class="br"></p>
+    <input type="checkbox" id="new_card_stop"/>
+    Stop giving points for new cards after
+    <input type="number" min="0" id="new_card_limit"></input>
+    new cards are done
+    <span class="info">?
+      <div>Designed to prevent overload from too many new reviews</div>
+    </span>
+    <p class="br"></p>
+    <input type="checkbox" id="kanji_readings"/>
+    Display readings on the front of Kanji cards
+    <p class="br"></p>
+    <input type="checkbox" id="kanji_vocab"/>
+    Display
+    <select id="vocab_amount">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+    random vocab words on the front of Kanji cards
+    <p class="br"></p>
+    <span class="tab"></span>
+    If reviews aren't reduced to 0, or at least
+    <input type="number" min="0" id="min"></input>
+    reviews aren't done in a day, lose
+    <p class="br"></p>
+    <span class="tab"></span>
+    <input type="checkbox" id="punish_num"/>
+    <input type="number" min="0" id="pun_num"></input>
+    points
+    <p class="br"></p>
+    <span class="tab"></span>
+    <input type="checkbox" checked id="punish_per"/>
+    <input type="number" min="0" max="100" id="pun_per"></input>%
+    of points
+    <h2>Sites to Block</h2>
+    <span class="tab"></span>
+    Display time left on site at
+    <select id="loc" style="width: auto">
+      <option value="lt">Top Left</option>
+      <option value="t">Top Right</option>
+      <option value="l">Bottom Left</option>
+      <option value="b">Bottom Right</option>
+      <option value="-">None</option>
+    </select>
+    <div id="container"></div>
+    <p class="br"></p>
+    <br/>
+    <span id="add">
+      Add Site
+      <span class="info">?
+        <div>Make the URL field blank and save to delete a site.</div>
+      </span>
+    </span>
+    <p class="br"></p>
+    <br/><br/>
+    <h2 id="submit">Save Settings</h2>
+    <script src="scripts/settings.js"></script>
+  </body>
+</html>

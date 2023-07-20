@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "jpdBlock",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "hello.html",
+    "default_icon": "icon.png"
+  },
+  "permissions": [
+    "storage",
+    "favicon"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["_favicon/*"],
+      "matches": ["<all_urls>"],
+      "extension_ids": ["*"]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "48443e00-7092-454a-8510-c7814b98e3e4",
+      "strict_min_version": "62.0"
+    }
+  }
+}
