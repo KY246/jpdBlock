@@ -5,6 +5,13 @@
   "version": "1.0",
   "content_scripts": [
     {
+      "js": ["scripts/jpdb.js"],
+      "matches": [
+        "*://jpdb.io/*",
+        "*://*.jpdb.io/*"
+      ]
+    },
+    {
       "js": ["scripts/content.js"],
       "matches": [
         "<all_urls>"
@@ -25,11 +32,5 @@
       "matches": ["<all_urls>"],
       "extension_ids": ["*"]
     }
-  ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "48443e00-7092-454a-8510-c7814b98e3e4",
-      "strict_min_version": "62.0"
-    }
-  }
+  ]
 }
