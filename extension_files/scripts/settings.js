@@ -106,7 +106,7 @@ let get_list = [
   "right_extra"       // 18
 ];
 
-get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "tl", [], true, 0, -10, false, -1, 3], _ => {
+get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -10, false, -1, 3], _ => {
   let sites = _[0];
   
   $("wrong_points").value = _[1] || 0;
