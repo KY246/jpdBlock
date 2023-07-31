@@ -1,7 +1,10 @@
+// current URL
 let lnk = location.href;
 
-const day = () => Math.floor((new Date().getTime()) / 8.64e7 - (new Date()).getTimezoneOffset() / 1440);
+// Get days from Jan 1 1970 Local time with offset included
+const day = (offset = 0) => Math.floor((new Date().getTime()) / 8.64e7 - (new Date()).getTimezoneOffset() / 1440 - offset / 24);
 
+// Get page favicon
 const favicon = (u = lnk, s = 64) => {
   const url = new URL(chrome.runtime.getURL("/_favicon/"));
   url.searchParams.set("pageUrl", u);
@@ -9,6 +12,7 @@ const favicon = (u = lnk, s = 64) => {
   return url.toString();
 }
 
+// Convert number to kanji form (up to 9999)
 const toKanji = (val, min = true) => {
   let nums = "一二三四五六七八九"
   let digits = "十百千万"
@@ -30,6 +34,8 @@ const toKanji = (val, min = true) => {
   return s + (min ? "分" : "");
 };
 
+/*
+// Log changes to storage
 chrome.storage.onChanged.addListener((changes, namespace) => {
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
     console.log(
@@ -38,9 +44,14 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     );
   }
 });
+*/
 
+// Literally the only good thing about jQuery
 const $ = id => document.getElementById(id);
 
+// Set to storage
+// set([key1, key2, ...keys], [value1, value2, ...values], function_to_run)
+// set(key1, value1, function_to_run)
 const set = (key, value, after) => {
   let info = {};
   if(typeof key == "object"){
@@ -57,6 +68,10 @@ const set = (key, value, after) => {
     }
   });
 };
+
+// Get from storage
+// set([key1, key2, ...keys], [default_value1, default_value2, ...default_values], function_to_run)
+// set(key1, default_value1, function_to_run)
 const get = (key, value, after) => {
   if(typeof key != "object"){
     key = [key];
@@ -76,36 +91,48 @@ const get = (key, value, after) => {
   });
 }
 
+// List of keys to get from storage
 let getList = [
-  "count",
-  "last_studied",
-  "kanji_readings",
-  "vocab_amount",
-  "last_day",
-  "done_today",
-  "min",
-  "punish_points",
-  "punish_percent",
-  "sites",
-  "time_left",
-  "loc"
+  "count",          // 0
+  "last_studied",   // 1
+  "kanji_readings", // 2
+  "vocab_amount",   // 3
+  "last_day",       // 4
+  "done_today",     // 5
+  "min",            // 6
+  "punish_points",  // 7
+  "punish_percent", // 8
+  "sites",          // 9
+  "time_left",      // 10
+  "loc",            // 11
+  "hide_others",    // 12
+  "extra_study",    // 13
+  "time_offset",    // 14
+  "extra_enabled",  // 15
+  "finished",       // 16
 ];
 
+// Main function to run
 const main = () => {
-  get(getList, [0, null, true, 3, day(), 0, 25, 0, 10, [], [], "lt"], run);
+  get(getList, [0, null, true, 3, day(), 0, 25, 0, 10, [], [], "lt", true, [], 0, false, -1, false], run);
 }
-
 main();
 
+// Function to run after fetching storage keys from main
 function run(c){
-  console.log(c);
+  //console.log(c);
   
-  if(c[4] < day()){
-    if(+c[5] >= +c[6] || c[5] == "-"){
+  // If today isn't the last day points were earned,
+  //    Punish user if they haven't done enough the day before, or missed more than 1 day
+  //    Set reviews done today and new lessons done today to 0,
+  //    Set last day to today
+  //    Set "reviews went to 0 today" to false
+  if(c[4] < day(c[14])){
+    if(+c[5] >= +c[6] || c[16]){
       c[4] ++;
     }
     
-    let today = day();
+    let today = day(c[14]);
     
     for(let i = c[4]; i < today; i++){
       c[0] -= c[7];
@@ -114,122 +141,50 @@ function run(c){
     
     c[0] = Math.max(c[0], 0) | 0;
     
-    set(["count", "last_day", "done_today", "new_today"], [c[0], day(), 0, 0], () => {});
+    set(["count", "last_day", "done_today", "new_today", "finished"], [c[0], day(c[14]), 0, 0, false], () => {});
   }
   
-  if(lnk.indexOf("https:\/\/jpdb.io\/review?c") >= 0){
-    if(c[1] != lnk.slice(25)){
-      let g = [$("grade-1"), $("grade-2"), $("grade-3"), $("grade-4"), $("grade-5")];
-      for(let i = 0; i < g.length; i++){
-        g[i].parentNode.onsubmit = e => {
-          e.preventDefault();
-          
-          get(["count", i < 2 ? "wrong_points" : "right_points", "done_today"], [0, i < 2 ? 1 : 2, 0], _ => {
-            if(document.getElementsByClassName("nav-item")[0].childNodes[1].style.color != "red"){
-              _[2] = "-";
-            }
-            
-            set(["count", "last_studied", "done_today"], [Math.max((+_[0]) + (+_[1]), 0), lnk.slice(25), (_[2] == "-") ? _[2] : (_[2] + 1)], () => {
-              g[i].parentNode.submit();
-            });
-          });
-        };
-        // g[i].style.display = "none";
-      }
+  
+  if(lnk.indexOf("jpdb.io") >= 0){
+    // For jpdb.io URLs
+    
+    // If extra reviews are enabled, add the extra option to the nav bar
+    if(c[15]){
+      addExtraMenu(c[13].length / 2);
     }
-  }else if(lnk.indexOf("https:\/\/jpdb.io\/review") >= 0){
-    if($("grade-p")){
-      let g = [$("grade-p"), $("grade-f")];
-      for(let i = 0; i < g.length; i++){
-        g[i].parentNode.onsubmit = e => {
-          e.preventDefault();
-          
-          get(["count", "new_points", "done_today", "new_today", "new_card_stop", "new_card_limit"], [0, i < 2 ? 1 : 2, 0, 0, true, 10], _ => {
-            console.log(_);
-            
-            if(document.getElementsByClassName("nav-item")[0].childNodes[1].style.color != "red"){
-              _[2] = "-";
-            }
-            
-            if(_[4] && _[3] >= _[5]){
-              g[i].parentNode.submit();
-              return;
-            }
-            
-            set(["count", "last_studied", "done_today", "new_today"], [Math.max((+_[0]) + (+_[1]), 0), lnk.slice(25), (_[2] == "-") ? _[2] : (_[2] + 1), _[3] + 1], () => {
-              g[i].parentNode.submit();
-            });
-          });
-        };
-        // g[i].style.display = "none";
-      }
-    }else if(document.getElementsByClassName("kind")[0]?.innerText == "Kanji"){
-      let kanji = document.getElementById("show-answer").parentNode.childNodes[0].value.split(",")[1];
+    
+    // Run global jpdb functions
+    jpdb(c);
+    
+    if(lnk.indexOf("https:\/\/jpdb.io\/review?c") >= 0){
+      // Inject point system script for reviews
+      grade(c);
+    }else if(lnk.indexOf("https:\/\/jpdb.io\/review") >= 0){
+      // For review links without ?c (which is used when the answer is shown)
       
-      if(c[2] || c[3]){
-        fetch(`https://jpdb.io/kanji/${kanji}?expand=v`, {cache: "force-cache"}).then(_ => _.text()).then(html => {
-          //https://stackoverflow.com/questions/36631762/returning-html-with-fetch
-          let parser = new DOMParser();
+      if(lnk.indexOf("https:\/\/jpdb.io\/review#e") >= 0){
+        // If link has #e (extra), inject script to create extra reviews
+        extra(c);
         
-          var doc = parser.parseFromString(html, "text/html");
-          
-          let exs = [...doc.getElementsByClassName("used-in")];
-          
-          for(let i = 0; i < exs.length; i++){
-            if(exs[i].childNodes[0].className == "spelling"){
-              exs.splice(i--, 1);
-            }else{
-              break;
-            }
-          }
-
-          let sel = [];
-          if(c[3]){
-            sel = [0, 1, 2];
-            if(exs.length <= c[3]){
-              sel = sel.slice(0, exs.length);
-            }else if(exs.length < 10){
-              let r = Math.random() * exs.length | 0;
-              sel = [r, (r + 1) % exs.length, (r + 2) % exs.length];
-            }else{
-              for(let i = 0; i < c[3]; i++){
-                let r = Math.random() * exs.length | 0;
-            
-                for(let j = 0; j < i; j++){
-                  if(sel[j] == r){
-                    i --;
-                    continue;
-                  }
-                }
-                
-                sel[i] = r;
-              }
-            }
-            sel = sel.slice(0, c[3]);
-          }
+        return;
+      }else if($("grade-p")){
+        // Inject script for grading new cards if dom element with id grade-p exists
+        gradeNew(c);
         
-          let str = "<div style=\"width: 70vw; position: fixed; left: 15vw;\">";
-          
-          if(c[2]){
-            let read = doc.getElementsByClassName("kanji-reading-list-common")[0].innerText.split(/\(\d+\%\)/g).slice(0, -1).join("、 ");
-            
-            str += `<span class="jp" style="font-size: 1.4em; text-align: center; width: 100%; display: block;">` + read + "</span><br/>";
-          }
-          for(let i = 0; i < sel.length; i++){
-            sel[i] = exs[sel[i]];
-            let ex = sel[i];
+        return;
+      }else if(document.getElementsByClassName("kind")[0]?.innerText == "Kanji"){
+        // Inject script for displaying readings and vocab words for kanji cards
         
-            sel[i].childNodes[0].style.fontSize = "1.4em";
-            
-            str += ex.innerHTML.replace(/<[a|s].*?>/g, "").replace(/<\/[a|s].*?>/, "").replace(new RegExp(kanji, "g"), "〇") + "<br/>";
-          }
-        
-          document.getElementsByClassName("bugfix")[0].innerHTML += str + "</div>";
-        });
+        kanji(c);
       }
+      
+      // Wait until user clicks button to reveal answer
+      wait(c);
     }
-    wait(c);
   }else if(location.href.indexOf("jpdb.io") == -1){
+    // For non jpdb links
+    
+    // See if URL matches one on block list
     let matchId = -1;
     l1:for(let i = 0; i < c[9].length; i++){
       if(c[9][i][1]){
@@ -246,16 +201,42 @@ function run(c){
         }
       }
     }
+    
+    // Stop running function if no matches are found
     if(matchId == -1){
       return;
     }
     
+    // If no date for site expiration is set, make it 1/1/1970 0:00:00.001
     if(!c[10][matchId]){
       c[10][matchId] = 1;
     }
+    
+    // If site expired, create popup for buying time
     if(c[10][matchId] < (new Date()).getTime()){
+      // convert large numbers to shortened numbers (up to 9999999999999999)
+      // ie. 5632482 -> 563.2万
+      const bigNum = num => {
+        let len = ("" + num).length;
+        let exp = num.toExponential(3).split("e")[0].replace(/\./g, "").replace(/0$/g, "");
+        if(num < 1e4){
+          num = num | 0;
+        }else if(num < 1e8){
+          num = (exp.slice(0, len - 4) + "." + exp.slice(len - 4)).replace(/\.$/g, "") + "万";
+        }else if(num < 1e12){
+          num = (exp.slice(0, len - 8) + "." + exp.slice(len - 8)).replace(/\.$/g, "") + "億";
+        }else if(num < 1e16){
+          num = (exp.slice(0, len - 12) + "." + exp.slice(len - 12)).replace(/\.$/g, "") + "兆";
+        }else{
+          num = num.toExponential(3);
+        }
+        return num;
+      };
+      
+      // Pause any running youtube videos (when time expires during viewing)
       document.querySelectorAll('.html5-main-video').forEach(vid => vid.pause());
       
+      // Create actual div which hides content
       let hider = document.createElement("div");
       hider.id = "jpdb_hider";
       hider.style = `
@@ -280,7 +261,9 @@ function run(c){
         position: fixed;
         z-index: 9999999999;
       `;
+      // prices
       let prc = [c[9][matchId][4], c[9][matchId][6], c[9][matchId][8]];
+      // minutes
       let mins = [c[9][matchId][3], c[9][matchId][5], c[9][matchId][7]];
       hider.innerHTML = `
         <div style="background: none; color: #bbb; font-size: min(6vh, 6vw); text-align: center; margin: 0px; padding: 30px; padding-top: 20px; border: 1px solid #f00; border-radius: 10px; display: inline-block; box-shadow: none; width: auto;">
@@ -290,7 +273,7 @@ function run(c){
         <br/><br/>
         <div style="background: none; color: #2b6ddf; font-size: 5vh; text-align: center; margin: 0px; padding: 30px; padding-top: 5px; padding-bottom: 5px; border: 1px solid #2b6ddf; border-radius: 10px; display: inline-block; box-shadow: none; width: auto;">
           <span style="font-size: min(3vh, 3vw);"><b>現在</b></span>
-          <span id="jpdb_count" style="font-size: min(8vh, wvw); display: block;">${c[0]}</span>
+          <span id="jpdb_count" style="font-size: min(8vh, wvw); display: block;">${bigNum(c[0])}</span>
           <span style="font-size: min(3vh, 3vw);"><b>点</b></span>
         </div>
         <br/><br/>
@@ -308,36 +291,59 @@ function run(c){
         </div>
       `;
       
+      // Disable scrolling
       let ovf = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       
+      // Append hider
       document.body.appendChild(hider);
       
       let g = [$("jpdb_buy_0"), $("jpdb_buy_1"), $("jpdb_buy_2")];
       
+      // Some webpages reenable scrolling
       let scrll = e => {
         if($("jpdb_hider")){
           document.body.style.overflow = "hidden";
         }
       };
       window.addEventListener("scroll", scrll);
+      
+      // See if time was bought on another tab on page focus and adjust accordingly
       let focs = e => {
-        get(["count"], [0], nv => {
+        get(["count", "time_left"], [0, []], nv => {
           c[0] = nv[0];
-          $("jpdb_count").innerText = c[0];
-          for(let i = 0; i < g.length; i++){
-            if(c[0] >= prc[i]){
-              g[i].style.borderColor = "#f00";
-              g[i].style.cursor = "pointer";
-            }else{
-              g[i].style.borderColor = "#bbb";
-              g[i].style.cursor = "default";
+          c[10] = nv[1];
+          
+          if(!c[10][matchId]){
+            c[10][matchId] = 1;
+          }
+          
+          if(c[10][matchId] > (new Date()).getTime()){
+            document.body.removeChild(hider);
+            document.body.style.overflow = ovf;
+            
+            window.removeEventListener("scroll", scrll);
+            window.removeEventListener("focus", focs);
+            window.removeEventListener("click", cl);
+            
+            main();
+          }else{          
+            $("jpdb_count").innerText = bigNum(c[0]);
+            for(let i = 0; i < g.length; i++){
+              if(c[0] >= prc[i]){
+                g[i].style.borderColor = "#f00";
+                g[i].style.cursor = "pointer";
+              }else{
+                g[i].style.borderColor = "#bbb";
+                g[i].style.cursor = "default";
+              }
             }
           }
         });
       }
       window.addEventListener("focus", focs);
       
+      // Add time and hide hider on click.
       let cl = e => {
         for(let i = 0; i < g.length; i++){
           if(e.target.id == g[i] || e.target.parentNode?.id == g[i].id || e.target.parentNode?.parentNode?.id == g[i].id){
@@ -360,6 +366,8 @@ function run(c){
       };
       window.addEventListener("click", cl);
     }else{
+      // If time hasn't expired, display a timer 
+      // Then create hiding page when timer runs out
       if(c[11] != "-"){
         let timer = document.createElement("div");
         timer.style = `
@@ -390,8 +398,12 @@ function run(c){
       
         function runOut(){
           if(c[10][matchId] < (new Date()).getTime()){
-            document.body.removeChild(timer);
-            main();
+            if(!c[9][matchId][9]){
+              document.body.removeChild(timer);
+              main();
+            }else{
+              timer.style.opacity = "0.3";
+            }
             return;
           }
           
@@ -408,15 +420,17 @@ function run(c){
         }
         
         runOut();
+      }else{
         setTimeout(() => {
           main();
           return;
-        }, c[10][matchId] - (new Date()).getTime())
+        }, c[10][matchId] - (new Date()).getTime());
       }
     }
   }
 }
 
+// Wait for review page to show answer
 function wait(c){
   if(location.href.indexOf("https:\/\/jpdb.io\/review?c") >= 0){
     lnk = location.href;

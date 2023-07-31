@@ -47,16 +47,18 @@ function makeSites(sites, last = false){
         <input type="text" id="link${i}" value="${site[0]}" style="width: 33vw;"></input>
         <br/>
         <input type="checkbox" id="regex${i}" ${site[1] ? "checked" : ""}/>
-        Use regex
-        <span class="tab"></span>
-        <select id="reg_type${i}">
-          <option value="g" ${site[2] == "g" ? "selected" : ""}>/g</option>
-          <option value="gi" ${site[2] == "gi" ? "selected" : ""}>/gi</option>
-          <option value="gu" ${site[2] == "gu" ? "selected" : ""}>/gu</option>
-          <option value="giu" ${site[2] == "giu" ? "selected" : ""}>/giu</option>
-          <option value="gv" ${site[2] == "gv" ? "selected" : ""}>/gv</option>
-          <option value="giv" ${site[2] == "giv" ? "selected" : ""}>/giv</option>
-        </select>
+        <span>
+          Use regex
+          <span class="tab"></span>
+          <select id="reg_type${i}">
+            <option value="g" ${site[2] == "g" ? "selected" : ""}>/g</option>
+            <option value="gi" ${site[2] == "gi" ? "selected" : ""}>/gi</option>
+            <option value="gu" ${site[2] == "gu" ? "selected" : ""}>/gu</option>
+            <option value="giu" ${site[2] == "giu" ? "selected" : ""}>/giu</option>
+            <option value="gv" ${site[2] == "gv" ? "selected" : ""}>/gv</option>
+            <option value="giv" ${site[2] == "giv" ? "selected" : ""}>/giv</option>
+          </select>
+        </span>
         <span class="info">?
           <div>Advanced URL matching. Use JavaScript rules for regex.</div>
         </span>
@@ -72,44 +74,64 @@ function makeSites(sites, last = false){
         </span>
       `;
     }
+    str += `
+      <br/>
+      <input type="checkbox" id="onload${i}" ${site[9] ? "checked" : ""}/>
+      <span>Only block on page load</span>
+    `;
     div.innerHTML = str;
     cont.appendChild(div);
   }
 }
 
 let get_list = [
-  "sites",
-  "wrong_points",
-  "right_points",
-  "new_points",
-  "new_card_stop",
-  "new_card_limit",
-  "kanji_readings",
-  "vocab_amount",
-  "min",
-  "punish_points",
-  "punish_percent",
-  "loc",
-  "time_left"
+  "sites",            // 0
+  "wrong_points",     // 1
+  "right_points",     // 2
+  "new_points",       // 3
+  "new_card_stop",    // 4
+  "new_card_limit",   // 5
+  "kanji_readings",   // 6
+  "vocab_amount",     // 7
+  "min",              // 8
+  "punish_points",    // 9
+  "punish_percent",   // 10
+  "loc",              // 11
+  "time_left",        // 12
+  "hide_others",      // 13
+  "time_offset",      // 14
+  "new_after",        // 15
+  "extra_enabled",    // 16
+  "wrong_extra",      // 17
+  "right_extra"       // 18
 ];
 
-get(get_list, [[], 1, 2, 1, true, 10, true, 3, 25, 0, 10, "tl", []], _ => {
+get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "tl", [], true, 0, -10, false, -1, 3], _ => {
   let sites = _[0];
   
-  $("wrong_points").value = _[1];
-  $("right_points").value = _[2];
-  $("new_points").value = _[3];
+  $("wrong_points").value = _[1] || 0;
+  $("right_points").value = _[2] || 0;
+  $("new_points").value = _[3] || 0;
   $("new_card_stop").checked = _[4];
-  $("new_card_limit").value = _[5];
+  $("new_card_limit").value = _[5] || 0;
   $("kanji_readings").checked = _[6];
   $("kanji_vocab").checked = _[7] > 0;
-  $("vocab_amount").value = _[7];
-  $("min").value = _[8];
+  $("vocab_amount").value = _[7] || 0;
+  $("min").value = _[8] || 0;
   $("punish_num").checked = _[9] > 0;
-  $("pun_num").value = _[9];
+  $("pun_num").value = _[9] || 0;
   $("punish_per").checked = _[10] > 0;
-  $("pun_per").value = _[10];
-  $("loc").value = _[11];
+  $("pun_per").value = _[10] || 0;
+  $("loc").value = _[11] || 0;
+  $("hide_others").checked = _[13];
+  $("offset").value = _[14] || 0;
+  $("new_after").value = _[15] || 0;
+  $("extra_enabled").checked = _[16] || 0;
+  $("wrong_extra").value = _[17] || 0;
+  $("right_extra").value = _[18] || 0;
+  
+  
+  console.log(_);
   
   makeSites(sites);
   $("add").onclick = e => {
@@ -118,12 +140,12 @@ get(get_list, [[], 1, 2, 1, true, 10, true, 3, 25, 0, 10, "tl", []], _ => {
       let st = sites.length - 1;
       
       times = [
-        $(`mins0_` + st).value,
-        $(`cost0_` + st).value,
-        $(`mins1_` + st).value,
-        $(`cost1_` + st).value,
-        $(`mins2_` + st).value,
-        $(`cost2_` + st).value
+        $(`mins0_` + st).value || 0,
+        $(`cost0_` + st).value || 0,
+        $(`mins1_` + st).value || 0,
+        $(`cost1_` + st).value || 0,
+        $(`mins2_` + st).value || 0,
+        $(`cost2_` + st).value || 0
       ];
     }
     
@@ -131,7 +153,8 @@ get(get_list, [[], 1, 2, 1, true, 10, true, 3, 25, 0, 10, "tl", []], _ => {
       "example.com",
       false,
       "gi",
-      ...times
+      ...times,
+      false
     ]);
     _[12].push(1);
     
@@ -150,6 +173,12 @@ get(get_list, [[], 1, 2, 1, true, 10, true, 3, 25, 0, 10, "tl", []], _ => {
     _[9] = $("punish_num").checked ? $("pun_num").value : 0;
     _[10] = $("punish_per").checked ? $("pun_per").value : 0;
     _[11] = $("loc").value;
+    _[13] = $("hide_others").checked;
+    _[14] = +($("offset").value);
+    _[15] = $("new_after").value;
+    _[16] = $("extra_enabled").checked;
+    _[17] = $("wrong_extra").value;
+    _[18] = $("right_extra").value;
     
     let len = $("container").childNodes.length;
 
@@ -158,6 +187,7 @@ get(get_list, [[], 1, 2, 1, true, 10, true, 3, 25, 0, 10, "tl", []], _ => {
       sites[i][0] = $("link" + i).value;
       sites[i][1] = $("regex" + i).checked;
       sites[i][2] = $("reg_type" + i).value;
+      sites[i][9] = $("onload" + i).checked;
       for(let j = 0; j < 3; j++){
         sites[i][3 + 2 * j] = $(`mins${j}_` + i).value;
         sites[i][4 + 2 * j] = $(`cost${j}_` + i).value;
