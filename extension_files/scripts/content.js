@@ -403,6 +403,8 @@ function run(c){
               main();
             }else{
               timer.style.opacity = "0.3";
+              lnk = location.href;
+              urlChange();
             }
             return;
           }
@@ -422,8 +424,13 @@ function run(c){
         runOut();
       }else{
         setTimeout(() => {
-          main();
-          return;
+          if(!c[9][matchId][9]){
+            main();
+            return;
+          }else{
+            lnk = location.href;
+            urlChange();
+          }
         }, c[10][matchId] - (new Date()).getTime());
       }
     }
@@ -437,5 +444,15 @@ function wait(c){
     main();
   }else{
     window.requestAnimationFrame(() => {wait(c)});
+  }
+}
+
+// Wait for page to change URL
+function urlChange(){
+  if(location.href != lnk){
+    lnk = location.href;
+    main();
+  }else{
+    window.requestAnimationFrame(() => {urlChange()});
   }
 }
