@@ -1,3 +1,8 @@
+// Using chrome instead of browser breaks on Firefox for some reason
+if(!window.browser){
+  window.browser = chrome;
+}
+
 const $ = _ => document.getElementById(_);
 
 const set = (key, value, after) => {
@@ -10,7 +15,7 @@ const set = (key, value, after) => {
     info[key] = value;
   }
   
-  chrome.storage.local.set(info).then(() => {
+  browser.storage.local.set(info).then(() => {
     if(after){
       after(value);
     }
@@ -21,7 +26,7 @@ const get = (key, value, after) => {
     key = [key];
     value = [value];
   }
-  chrome.storage.local.get(key).then(result => {
+  browser.storage.local.get(key).then(result => {
     let res = [];
     for(let i = 0; i < key.length; i++){
       if(result[key[i]] === undefined){
@@ -208,7 +213,7 @@ get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -1
       write[get_list[i]] = _[i];
     }
     
-    chrome.storage.local.set(write, _ => {
+    browser.storage.local.set(write, _ => {
       window.location.reload();
     });
   };
