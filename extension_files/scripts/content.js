@@ -1,3 +1,8 @@
+// Using chrome instead of browser breaks on Firefox for some reason
+if(!window.browser){
+  window.browser = chrome;
+}
+
 // current URL
 let lnk = location.href;
 
@@ -6,10 +11,14 @@ const day = (offset = 0) => Math.floor((new Date().getTime()) / 8.64e7 - (new Da
 
 // Get page favicon
 const favicon = (u = lnk, s = 64) => {
-  const url = new URL(chrome.runtime.getURL("/_favicon/"));
+  /*
+  // Firefox no like :(
+  const url = new URL(browser.runtime.getURL("/_favicon/"));
   url.searchParams.set("pageUrl", u);
   url.searchParams.set("size", s);
   return url.toString();
+  */
+  return lnk.split("/").slice(0, 3).join("/") + "/favicon.ico";
 }
 
 // Convert number to kanji form (up to 9999)
@@ -36,7 +45,7 @@ const toKanji = (val, min = true) => {
 
 /*
 // Log changes to storage
-chrome.storage.onChanged.addListener((changes, namespace) => {
+browser.storage.onChanged.addListener((changes, namespace) => {
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
     console.log(
       `Storage key "${key}" in namespace "${namespace}" changed.`,
@@ -62,7 +71,7 @@ const set = (key, value, after) => {
     info[key] = value;
   }
   
-  chrome.storage.local.set(info).then(() => {
+  browser.storage.local.set(info).then(() => {
     if(after){
       after(value);
     }
@@ -77,7 +86,7 @@ const get = (key, value, after) => {
     key = [key];
     value = [value];
   }
-  chrome.storage.local.get(key).then(result => {
+  browser.storage.local.get(key).then(result => {
     let res = [];
     for(let i = 0; i < key.length; i++){
       if(result[key[i]] === undefined){

@@ -1,3 +1,9 @@
+// Using chrome instead of browser breaks on Firefox for some reason
+if(!window.browser){
+  window.browser = chrome;
+}
+
+
 // Set finished to true if the font color for the review color isn't red (there are no due reviews)
 // And there aren't any extra reviews.
 // Only run this function once per page load
@@ -86,11 +92,11 @@ const gradeNew = c => {
           set(["count", "last_studied", "done_today", "new_today"], [Math.max((+_[0]) + (+_[6]), 0), lnk.slice(25), _[2] + 1, _[3] + 1], () => {
             g[i].parentNode.submit();
           });
+        }else{
+          set(["count", "last_studied", "done_today", "new_today"], [Math.max((+_[0]) + (+_[1]), 0), lnk.slice(25), _[2] + 1, _[3] + 1], () => {
+            g[i].parentNode.submit();
+          });
         }
-        
-        set(["count", "last_studied", "done_today", "new_today"], [Math.max((+_[0]) + (+_[1]), 0), lnk.slice(25), _[2] + 1, _[3] + 1], () => {
-          g[i].parentNode.submit();
-        });
       });
     };
     // g[i].style.display = "none";
