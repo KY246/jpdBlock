@@ -15,5 +15,5 @@ Chromium based browsers (Chrome, Brave, Edge, etc.)
 6. Select "Load Unpacked"
 7. Open the unzipped folder. Select the folder titled extension_files without opening it, and click Okay.
 
-Firefox
+Firefox<br/>
   Go to: https://addons.mozilla.org/en-US/firefox/addon/jpdblock/
