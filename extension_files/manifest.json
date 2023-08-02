@@ -18,19 +18,14 @@
       ]
     }
   ],
+  "icons": {
+    "48": "icon48.png"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
   "permissions": [
-    "storage",
-    "favicon"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["_favicon/*"],
-      "matches": ["<all_urls>"],
-      "extension_ids": ["*"]
-    }
+    "storage"
   ]
 }
