@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="icon.png">
+    <link rel="stylesheet" href="styles.css">
+    <title>Events</title>
+  </head>
+  <body>
+    <section id="blur">
+      <h1>
+        Calendar
+        <span class="tab"></span>
+        <span class="info">?
+          <div>Create events that can earn you extra points. (e.g. read 10 pages of a book)</div>
+        </span>
+      </h1>
+      <br/>
+      <h2 style="text-align:center" id="now"></h2>
+      <div id="calendar"></div>
+    </section>
+    <div id="set" data-index="0">
+      <h2 class="btn" style="float: right; margin: 0px; color: #f00; border-color: #f00;">X</h2>
+      <div>
+        <h2 style="text-align: center">Edit Event</h2>
+        <span class="tab"></span>
+        Title:
+        <input type="text" id="name" style="width: calc(100% - 150px);" placeholder="This Event will be deleted"></input>
+        <span class="info">?
+          <div>Make blank and save event to delete.</div>
+        </span>
+        <p class="br"></p>
+        <span class="tab"></span>
+        Day:
+        <select id="month">
+          <option value="0">Jan</option>
+          <option value="1">Feb</option>
+          <option value="2">Mar</option>
+          <option value="3">Apr</option>
+          <option value="4">May</option>
+          <option value="5">Jun</option>
+          <option value="6">Jul</option>
+          <option value="7">Aug</option>
+          <option value="8">Sep</option>
+          <option value="9">Oct</option>
+          <option value="10">Nov</option>
+          <option value="11">Dec</option>
+        </select>
+        <input type="number" min="1" max="31" id="day"></input>,
+        <input type="number" id="year"></input>
+        <p class="br"></p>
+        <span class="tab"></span>
+        Time:
+        <select id="time" style="width: 50px;">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+          <option value="14">14</option>
+          <option value="15">15</option>
+          <option value="16">16</option>
+          <option value="17">17</option>
+          <option value="18">18</option>
+          <option value="19">19</option>
+          <option value="20">20</option>
+          <option value="21">21</option>
+          <option value="22">22</option>
+          <option value="23">23</option>
+        </select> : 
+        <select id="min" style="width: 50px;">
+          <option value="0">00</option>
+          <option value="5">05</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+          <option value="25">25</option>
+          <option value="30">30</option>
+          <option value="35">35</option>
+          <option value="40">40</option>
+          <option value="45">45</option>
+          <option value="50">50</option>
+          <option value="55">55</option>
+        </select>
+        <p class="br"></p>
+        <span class="tab"></span>
+        Length:
+        <input type="number" min="0" max="23" id="lenhr" value="1"></input> hours and
+        <input type="number" min="0" max="59" id="lenmi" value="0"></input> minutes
+        <span class="info">?
+          <div>Time frame to finish event</div>
+        </span>
+        <p class="br"></p>
+        <input type="checkbox" id="repeat"/>
+        <span>
+          Repeat
+          <select id="repeat_amount" style="width: 100px;">
+            <option value="1">Daily</option>
+            <option value="2">Weekly</option>
+            <option value="3">Monthly</option>
+          </select>
+        </span>
+        <p class="br"></p>
+        <input type="checkbox" id="reward" checked/>
+        <span>
+          Reward
+          <input type="number" min="0" id="reward_points" value="20"></input>
+          Points
+          <span class="info">?
+            <div>Points earned for doing on time</div>
+          </span>
+        </span>
+        <!--p class="br"></p>
+        <input type="checkbox" id="punish" checked/>
+        <span>
+          Punish
+          <input type="number" min="0" id="punish_points" value="20"></input>
+          Points
+          <span class="info">?
+            <div>Points lost for not doing on time</div>
+          </span>
+        </span-->
+        <p class="br"></p>
+        <p class="tab"></p>
+        Color of event:
+        <select id="color" style="width: 100px;">
+          <option value="#ffffff" style="color:#ffffff">White</option>
+          <option value="#2b6dff" style="color:#2b6dff">Blue</option>
+          <option value="#cc4bff" style="color:#cc4bff">Magenta</option>
+          <option value="#ff88ff" style="color:#ff88ff">Pink</option>
+          <option value="#ff4b6b" style="color:#ff4b6b">Red</option>
+          <option value="#ff7b3b" style="color:#ff7b3b">Orange</option>
+          <option value="#ffff4b" style="color:#ffff4b">Yellow</option>
+          <option value="#6bff2b" style="color:#6bff2b">Green</option>
+          <option value="#5bffff" style="color:#5bffff">Cyan</option>
+        </select>
+      </div>
+      <h2 class="btn" style="position: absolute; right: 20px; bottom: 20px; margin: 0px; padding: 10px 15px 10px 15px;">Save</h2>
+    </div>
+    <script src="scripts/calendar.js"></script>
+  </body>
+</html>

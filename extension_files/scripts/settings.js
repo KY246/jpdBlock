@@ -48,8 +48,8 @@ function makeSites(sites, last = false){
     let str = `
       <p class="br"></p>
       <br/>
-      <span style="width: 35vw; padding: 0px, margin: 0px; display: inline-block;">
-        <input type="text" id="link${i}" value="${site[0]}" style="width: 33vw;"></input>
+      <span style="width: 45vw; padding: 0px, margin: 0px; display: inline-block;">
+        <input type="text" id="link${i}" value="${site[0]}" style="width: 43vw;"></input>
         <br/>
         <input type="checkbox" id="regex${i}" ${site[1] ? "checked" : ""}/>
         <span>
@@ -108,10 +108,11 @@ let get_list = [
   "new_after",        // 15
   "extra_enabled",    // 16
   "wrong_extra",      // 17
-  "right_extra"       // 18
+  "right_extra",      // 18
+  "useSVG"            // 19
 ];
 
-get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -10, false, -1, 3], _ => {
+get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -10, false, -1, 3, true], _ => {
   let sites = _[0];
   
   $("wrong_points").value = _[1] || 0;
@@ -134,6 +135,7 @@ get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -1
   $("extra_enabled").checked = _[16] || 0;
   $("wrong_extra").value = _[17] || 0;
   $("right_extra").value = _[18] || 0;
+  $("use_svg").checked = _[19] || 0;
   
   
   console.log(_);
@@ -184,6 +186,7 @@ get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -1
     _[16] = $("extra_enabled").checked;
     _[17] = $("wrong_extra").value;
     _[18] = $("right_extra").value;
+    _[19] = $("use_svg").checked;
     
     let len = $("container").childNodes.length;
 

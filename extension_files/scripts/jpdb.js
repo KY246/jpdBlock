@@ -258,7 +258,7 @@ const extra = c => {
         </div>
       </div>
       ${str}</div>
-      ${mean.outerHTML.replace(/[一-龯々]/g, "◯")}
+      ${mean.outerHTML.replace(new RegExp("[" + reading.outerHTML.match(/[一-龯々]/g).join("") + "]", "g"), "⬤").replace(/[一-龯々]/g, "◯")}
     `;
 
     let _button = $("extra-submit");
@@ -429,3 +429,56 @@ const kanji = c => {
     });
   }
 };
+
+
+const changeSVG = () => {
+  // Adapted from https://github.com/edelmeister/jpdb-kanjivg-image-replacer
+  // CC by 4.0 license (https://creativecommons.org/licenses/by/4.0/)
+  // Changes have been made from the original document
+
+  const href = document.querySelector('a.kanji.plain').getAttribute('href')
+  const kanji = href.split("/")[2].split("#")[0];
+  const unicodeHex = kanji.charCodeAt(0).toString(16).toLowerCase().padStart(5, '0');
+  const url = `https://raw.githubusercontent.com/KanjiVG/kanjivg/refs/heads/master/kanji/${unicodeHex}.svg`;
+
+  browser.runtime.sendMessage({
+    "fetch": url
+  }).then(_ => {
+    const response = _.response;
+
+    if ((!response) || response.indexOf("svg") == -1) {
+      console.error('SVG image not found, not replacing the image.');
+      // Exit the function if the SVG image is not found
+      return;
+    }
+    // Find the SVG element on jpdb.io
+    let svgElement = document.querySelector('svg.kanji');
+
+    if (svgElement) {
+      // Replace the content of the SVG element with the fetched SVG content
+      svgElement.outerHTML = "<svg class=\"kanji\"" + response.split("<svg")[1];
+
+      svgElement = document.querySelector('svg.kanji');
+      svgElement.style.width = "300px";
+      svgElement.style.height = "300px";
+
+      // Change colours if dark
+      let dark = document.querySelector('html').className == "dark-mode";
+      const numbers = document.querySelector("g[id^=\"kvg:StrokeNumbers\"]");
+      if(dark){
+        document.querySelector("g[id^=\"kvg:StrokePaths\"]").style.stroke = "#bbb";
+        numbers.style.fill = "#2b6ddf";
+      }
+      [...numbers.children].forEach(a => a.style = `
+        font-size: 13px;
+        text-shadow: 0px 0px 4px black,
+                     0px 0px 4px black,
+                     0px 0px 4px black;
+        font-weight: 900;
+      `);
+    } else {
+      // Log if the SVG element is not found
+      console.error('SVG element not found');
+    }
+  });
+}

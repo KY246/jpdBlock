@@ -3,131 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/x-icon" href="icon.png">
-    <style>
-      body{
-        background: #181818;
-        color: #bbb;
-        margin: 0px;
-        
-        font-size: 20px;
-        
-        padding-left: 10vw;
-        padding-right: 10vw;
-        padding-bottom: 35vh;
-        
-        overflow-x: hidden;
-      }
-      h1{
-        font-size: 50px;
-        text-align: center;
-      }
-      h2{
-        font-size: 30px;
-      }
-      #settings{
-        cursor: pointer;
-        
-        position: fixed;
-        bottom: 0px;
-        left: 0px;
-        
-        width: 300px;
-        height: 70px;
-        
-        border-top: 1px solid #bbb;
-        padding-top: 15px;
-        
-        margin: 0px;
-      }
-      select, input{
-        font-size: inherit;
-        width: 80px;
-      }
-      input[type="checkbox"]{
-        width: 20px;
-        paddin: 0px;
-        margin: 0px;
-      }
-      .br{
-        display: block;
-        height: 10px;
-        margin: 0px;
-        padding: 0px;
-      }
-      .tab{
-        width: 20px;
-        display: inline-block;
-      }
-      .wide{
-        width: 40px;
-        display: inline-block;
-      }
-      .info{
-        background-color: #777;
-        color: #fff;
-        width: 25px;
-        height: 25px;
-        border-radius: 13px;
-        text-align: center;
-        vertical-align: center;
-        padding: 0px;
-        display: inline-block;
-        cursor: default;
-      }
-      .info > div{
-        background-color: #777;
-        border-radius: 13px;
-        position: absolute;
-        width: 200px;
-        padding: 10px;
-        display: none;
-        font-size: 15px;
-      }
-      .info:hover > div{
-        display: block;
-      }
-      *{
-        box-sizing: border-box;
-      }
-      #add{
-        padding: 2vh;
-        text-align: center;
-        border: 1px solid #2b6ddf;
-        border-radius: 15px;
-        cursor: pointer;
-      }
-      #submit{
-        display: block;
-        position: absolute;
-        width: 20vw;
-        min-height: 10vh;
-        padding-top: 2vh;
-        padding-bottom: 2vh;
-        text-align: center;
-        left: 40vw;
-        border: 1px solid #2b6ddf;
-        border-radius: 15px;
-        cursor: pointer;
-      }
-      input[type="checkbox"],
-      input[type="checkbox"] + span,
-      #extra_enabled[type="checkbox"] ~ .extra_req{
-        opacity: 0.65;
-        transition: opacity 150ms;
-      }
-      input[type="checkbox"] + span > input,
-      input[type="checkbox"] + span > select{
-        opacity: 0.5;
-        transition: opacity 150ms;
-      }
-      input[type="checkbox"]:checked,
-      input[type="checkbox"]:checked + span,
-      input[type="checkbox"]:checked + span > input,
-      input[type="checkbox"]:checked + span > select,
-      #extra_enabled[type="checkbox"]:checked ~ .extra_req{
-        opacity: 1;
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <title>Settings</title>
   </head>
   <body>
     <h1>Settings</h1>
@@ -193,6 +70,11 @@
       <span>
         Hide other kanji in example vocab words
       </span>
+    </span>
+    <p class="br"></p>
+    <input type="checkbox" id="use_svg"/>
+    <span>
+      Use KanjiVG SVG instead of default kanji display
     </span>
     <h2>General Settings</h2>
     <span class="tab"></span>

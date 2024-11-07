@@ -3,21 +3,40 @@
   <head>
     <meta charset="utf-8" />
     <style>
+      div::-webkit-scrollbar {
+        width: 10px;
+      }
+      div::-webkit-scrollbar-track {
+        background: #0000;
+      }
+      div::-webkit-scrollbar-thumb {
+        background: #2b6ddf;
+        border-radius: 5px;
+      }
+      div::-webkit-scrollbar-thumb:hover {
+        background: #4b8dff;
+      }
+      *{
+        box-sizing: border-box;
+      }
       body{
         background: #181818;
         width: 300px;
-        height: 500px;
+        max-height: 500px;
         text-align: center;
         color: #bbb;
         
         margin: 0px;
       }
+      h1{
+        font-size: 20px;
+      }
       #count, #today{
-        font-size: 50px;
+        font-size: 30px;
         margin-top: -15px;
         padding-top: 0px;
       }
-      #settings{
+      footer{
         cursor: pointer;
         
         position: fixed;
@@ -25,26 +44,71 @@
         left: 0px;
         
         width: 300px;
-        height: 70px;
         
         border-top: 1px solid #bbb;
-        padding-top: 15px;
+        padding: 0px;
         
         margin: 0px;
+      }
+      footer > h1{
+        margin: 0px;
+        height: 50px;
+        line-height: 50px;
+        width: 50vw;
+      }
+      div{
+        max-height: 450px;
+        overflow-y: auto;
+      }
+      #calendar{
+        float: left;
+        border-right: 1px solid #bbb;
+      }
+      #settings{
+        float: right;
       }
       *{
         box-sizing: border-box;
       }
+      .event{
+        font-size: 15px;
+        border: 1px solid;
+        border-radius: 10px;
+        margin: 10px;
+        text-align: left;
+        height: 34px;
+        line-height: 34px;
+        overflow: hidden;
+      }
+      .event > span{
+        border: 1px solid;
+        border-radius: 8px;
+        min-width: 90px;
+        height: 26px;
+        line-height: 26px;
+        margin: 3px 3px 0px 2px;
+        display: inline-block;
+        text-align: center;
+        font-size: 13px;
+        vertical-align: top;
+      }
     </style>
   </head>
   <body>
-    <h1>jpdBlock</h1>
-    <br/>
-    <h1>現在点数</h1>
-    <h1 id="count"></h1>
-    <h1>今日</h1>
-    <h1 id="today"></h1>
-    <h1 id="settings">設定</h1>
+    <div id="container">
+      <h1>jpdBlock</h1>
+      <br/>
+      <h1>現在点数</h1>
+      <h1 id="count"></h1>
+      <h1>今日</h1>
+      <h1 id="today"></h1>
+      <br/>
+    </div>
+    <section style="height: 50px"></section>
+    <footer>
+      <h1 id="calendar">Events</h1>
+      <h1 id="settings">Settings</h1>
+    </footer>
     <script src="scripts/popup.js"></script>
   </body>
 </html>

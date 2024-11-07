@@ -119,11 +119,12 @@ let getList = [
   "time_offset",    // 14
   "extra_enabled",  // 15
   "finished",       // 16
+  "useSVG"          // 17
 ];
 
 // Main function to run
 const main = () => {
-  get(getList, [0, null, true, 3, day(), 0, 25, 0, 10, [], [], "lt", true, [], 0, false, -1, false], run);
+  get(getList, [0, null, true, 3, day(), 0, 25, 0, 10, [], [], "lt", true, [], 0, false, -1, false, true], run);
 }
 main();
 
@@ -168,6 +169,11 @@ function run(c){
     if(lnk.indexOf("https:\/\/jpdb.io\/review?c") >= 0){
       // Inject point system script for reviews
       grade(c);
+
+      // Change SVG if kanji svg exists
+      if(c[17] && document.querySelector("svg.kanji")){
+        changeSVG();
+      }
     }else if(lnk.indexOf("https:\/\/jpdb.io\/review") >= 0){
       // For review links without ?c (which is used when the answer is shown)
       
@@ -190,7 +196,19 @@ function run(c){
       // Wait until user clicks button to reveal answer
       wait(c);
     }
-  }else if(location.href.indexOf("jpdb.io") == -1){
+  }/*else if(location.href.indexOf("estar.jp") >= 0){
+    const content = document.querySelector(".mainBody");
+    if(!content || content.innerHTML != content.innerHTML.replace(/…/g, "︙")){
+      window.setTimeout(main, 1000);
+    }
+    content.innerHTML = content.innerHTML.replace(/…/g, "︙");
+    content.addEventListener("copy", e => {
+      e.stopImmediatePropagation();
+    }, true);
+    urlChange(() => {
+      window.location.reload();
+    });
+  }*/else if(location.href.indexOf("jpdb.io") == -1){
     // For non jpdb links
     
     // See if URL matches one on block list
@@ -457,11 +475,11 @@ function wait(c){
 }
 
 // Wait for page to change URL
-function urlChange(){
+function urlChange(fnc=main){
   if(location.href != lnk){
     lnk = location.href;
-    main();
+    fnc();
   }else{
-    window.requestAnimationFrame(() => {urlChange()});
+    window.requestAnimationFrame(() => {urlChange(fnc)});
   }
 }

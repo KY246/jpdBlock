@@ -18,6 +18,9 @@
       ]
     }
   ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
   "icons": {
     "48": "icon48.png"
   },
@@ -26,6 +29,10 @@
     "default_icon": "icon.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "alarms",
+    "notifications",
+    "tabs",
+    "contextMenus"
   ]
 }
