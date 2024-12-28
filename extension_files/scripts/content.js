@@ -196,19 +196,7 @@ function run(c){
       // Wait until user clicks button to reveal answer
       wait(c);
     }
-  }/*else if(location.href.indexOf("estar.jp") >= 0){
-    const content = document.querySelector(".mainBody");
-    if(!content || content.innerHTML != content.innerHTML.replace(/…/g, "︙")){
-      window.setTimeout(main, 1000);
-    }
-    content.innerHTML = content.innerHTML.replace(/…/g, "︙");
-    content.addEventListener("copy", e => {
-      e.stopImmediatePropagation();
-    }, true);
-    urlChange(() => {
-      window.location.reload();
-    });
-  }*/else if(location.href.indexOf("jpdb.io") == -1){
+  }else if(location.href.indexOf("jpdb.io") == -1){
     // For non jpdb links
     
     // See if URL matches one on block list
@@ -234,13 +222,13 @@ function run(c){
       return;
     }
     
-    // If no date for site expiration is set, make it 1/1/1970 0:00:00.001
-    if(!c[10][matchId]){
-      c[10][matchId] = 1;
+    // If no time limit is defined, or time limit was defined with old method (large numer over 3 days), set it to 0 seconds
+    if(!c[10][matchId] || c[10][matchId] > 60 * 60 * 24 * 3){
+      c[10][matchId] = 0;
     }
     
     // If site expired, create popup for buying time
-    if(c[10][matchId] < (new Date()).getTime()){
+    if(c[10][matchId] <= 0){
       // convert large numbers to shortened numbers (up to 9999999999999999)
       // ie. 5632482 -> 563.2万
       const bigNum = num => {
@@ -260,7 +248,7 @@ function run(c){
         return num;
       };
       
-      // Pause any running youtube videos (when time expires during viewing)
+      // Pause any running videos (when time expires during viewing)
       document.querySelectorAll('.html5-main-video').forEach(vid => vid.pause());
       
       // Create actual div which hides content
@@ -345,7 +333,7 @@ function run(c){
             c[10][matchId] = 1;
           }
           
-          if(c[10][matchId] > (new Date()).getTime()){
+          if(c[10][matchId] > 0){
             document.body.removeChild(hider);
             document.body.style.overflow = ovf;
             
@@ -375,7 +363,7 @@ function run(c){
         for(let i = 0; i < g.length; i++){
           if(e.target.id == g[i] || e.target.parentNode?.id == g[i].id || e.target.parentNode?.parentNode?.id == g[i].id){
             get(["count", "time_left"], [0, []], nv => {
-              nv[1][matchId] = Math.max(nv[1][matchId], (new Date()).getTime()) + mins[i] * 60000;
+              nv[1][matchId] = mins[i] * 60;
               if(nv[0] >= prc[i]){
                 set(["count", "time_left"], [nv[0] - prc[i], nv[1]], () => {});
                 document.body.removeChild(hider);
@@ -395,8 +383,10 @@ function run(c){
     }else{
       // If time hasn't expired, display a timer 
       // Then create hiding page when timer runs out
+      let timer;
+
       if(c[11] != "-"){
-        let timer = document.createElement("div");
+        timer = document.createElement("div");
         timer.style = `
           background-color: #181818;
           color: #bbb;
@@ -422,44 +412,49 @@ function run(c){
           z-index: 9999999999;
         `;
         document.body.appendChild(timer);
+      }
       
-        function runOut(){
-          if(c[10][matchId] < (new Date()).getTime()){
-            if(!c[9][matchId][9]){
-              document.body.removeChild(timer);
-              main();
-            }else{
-              timer.style.opacity = "0.3";
-              lnk = location.href;
-              urlChange();
-            }
-            return;
-          }
-          
-          let t = (c[10][matchId] - (new Date()).getTime()) / 1000 | 0;
-          let s = t % 60;
-          let m = t / 60 | 0;
-          let h = t / 3600 | 0;
-          
-          timer.innerText = h ? (h + ":" + ("0" + m).slice(-2)) : (m + ":" + ("0" + s).slice(-2));
-          
-          window.requestAnimationFrame(() => {
-            window.setTimeout(runOut, 150);
-          });
-        }
-        
-        runOut();
-      }else{
-        setTimeout(() => {
+      let prevTime = (new Date()).getTime();
+      function runOut(){
+        if(c[10][matchId] <= 0){
           if(!c[9][matchId][9]){
+            document.body.removeChild(timer);
             main();
-            return;
           }else{
+            if(timer) timer.style.opacity = "0.3";
             lnk = location.href;
             urlChange();
           }
-        }, c[10][matchId] - (new Date()).getTime());
+          return;
+        }
+        
+        // Subtract time from remaining if the interval was no longer than 0.5 seconds (0.25 expected)
+        // Longer amounts of time aren't counted (could be from being on a different tab, or from lag)
+        let nowTime = (new Date()).getTime();
+        let deltaTime = (nowTime - prevTime) / 1000;
+        prevTime = nowTime;
+        if(deltaTime < 0.5){
+          get(["time_left"], [[]], nv => {
+            c[10][matchId] = nv[matchId];
+            c[10][matchId] -= deltaTime;
+            nv[matchId] = c[10][matchId];
+            set(["time_left"], [nv], () => {});
+          });
+        }
+        
+        let t = c[10][matchId] | 0;
+        let s = t % 60;
+        let m = t / 60 | 0;
+        let h = t / 3600 | 0;
+        
+        if(timer) timer.innerText = h ? (h + ":" + ("0" + m).slice(-2)) : (m + ":" + ("0" + s).slice(-2));
+
+        window.requestAnimationFrame(() => {
+          window.setTimeout(runOut, 250);
+        });
       }
+      
+      runOut();
     }
   }
 }
