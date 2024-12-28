@@ -418,7 +418,7 @@ function run(c){
       function runOut(){
         if(c[10][matchId] <= 0){
           if(!c[9][matchId][9]){
-            document.body.removeChild(timer);
+            if(timer) document.body.removeChild(timer);
             main();
           }else{
             if(timer) timer.style.opacity = "0.3";
