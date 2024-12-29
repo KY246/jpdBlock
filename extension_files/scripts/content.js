@@ -128,6 +128,17 @@ const main = () => {
 }
 main();
 
+// Document visibility state
+// From https://stackoverflow.com/questions/2720658/
+let visibilityState = 1;
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){
+    visibilityState = 0;
+  }else{
+    visibilityState = 1;
+  }
+})
+
 // Function to run after fetching storage keys from main
 function run(c){
   //console.log(c);
@@ -428,30 +439,47 @@ function run(c){
           return;
         }
         
-        // Subtract time from remaining if the interval was no longer than 0.5 seconds (0.25 expected)
-        // Longer amounts of time aren't counted (could be from being on a different tab, or from lag)
+        // Subtract time from remaining if the interval was no longer than 60 seconds (0.25 expected)
+        // Longer amounts of time aren't counted (could be from lag)
+        // Also don't count if tab switched.
         let nowTime = (new Date()).getTime();
         let deltaTime = (nowTime - prevTime) / 1000;
         prevTime = nowTime;
-        if(deltaTime < 0.5){
+        if(deltaTime < 60 && visibilityState == 2){
           get(["time_left"], [[]], nv => {
+            nv = nv[0];
             c[10][matchId] = nv[matchId];
             c[10][matchId] -= deltaTime;
             nv[matchId] = c[10][matchId];
-            set(["time_left"], [nv], () => {});
+            set(["time_left"], [nv], () => {
+              let t = c[10][matchId] | 0;
+              let s = t % 60;
+              let m = (t / 60 | 0) % 60;
+              let h = t / 3600 | 0;
+              
+              if(timer) timer.innerText = h ? (h + ":" + ("0" + m).slice(-2)) : (m + ":" + ("0" + s).slice(-2));
+
+              window.requestAnimationFrame(() => {
+                window.setTimeout(runOut, 250);
+              });
+            });
+          });
+        }else {
+          if(visibilityState == 1){
+            visibilityState = 2;
+          }
+
+          let t = c[10][matchId] | 0;
+          let s = t % 60;
+          let m = (t / 60 | 0) % 60;
+          let h = t / 3600 | 0;
+          
+          if(timer) timer.innerText = h ? (h + ":" + ("0" + m).slice(-2)) : (m + ":" + ("0" + s).slice(-2));
+
+          window.requestAnimationFrame(() => {
+            window.setTimeout(runOut, 250);
           });
         }
-        
-        let t = c[10][matchId] | 0;
-        let s = t % 60;
-        let m = t / 60 | 0;
-        let h = t / 3600 | 0;
-        
-        if(timer) timer.innerText = h ? (h + ":" + ("0" + m).slice(-2)) : (m + ":" + ("0" + s).slice(-2));
-
-        window.requestAnimationFrame(() => {
-          window.setTimeout(runOut, 250);
-        });
       }
       
       runOut();
