@@ -35,14 +35,14 @@ const grade = c => {
     let g = [$("grade-1"), $("grade-2"), $("grade-3"), $("grade-4"), $("grade-5")];
     let cutoff = 2;
     if(!g[0]){
-      g = [$("grade-p"), $("grade-f")];
+      g = [$("grade-f"), $("grade-p")];
       cutoff = 1;
     }
     for(let i = 0; i < g.length; i++){
       g[i].parentNode.onsubmit = e => {
         e.preventDefault();
         
-        get(["count", i < cutoff ? "wrong_points" : "right_points", "done_today", "extra_study"], [0, i < cutoff ? 1 : 2, 0, []], _ => {
+        get(["count", i < cutoff ? "wrong_points" : "right_points", "done_today", "extra_study"], [0, i < cutoff ? -2 : 2, 0, []], _ => {
           let keys = ["count", "last_studied", "done_today"];
           let values = [
             Math.max((+_[0]) + (+_[1]), 0),
