@@ -3,7 +3,7 @@ if(!window.browser){
   window.browser = chrome;
 }
 
-const $ = _ => document.getElementById(_);
+const $ = _ => document.getElementById(_) || document.getElementsByClassName(_);
 
 const set = (key, value, after) => {
   let info = {};
@@ -42,14 +42,28 @@ const get = (key, value, after) => {
 
 function makeSites(sites, last = false){
   let cont = $("container");
+
+  if(!last) cont.innerHTML = "";
+
   for(let i = last ? sites.length - 1 : 0; i < sites.length; i++){
     let site = sites[i];
     let div = document.createElement("div");
+    let siteList = "";
+
+    // Convert old site format to new
+    if(typeof site[0] == "string") site[0] = [site[0]];
+
+    for(let j = 0; j < site[0].length; j++){
+      siteList += `<input type="text" class="link${i}" value="${site[0][j]}" style="width: calc(43vw - ${j == site[0].length - 1 ? 35 : 0}px);"></input>`;
+    }
     let str = `
       <p class="br"></p>
       <br/>
       <span style="width: 45vw; padding: 0px, margin: 0px; display: inline-block;">
-        <input type="text" id="link${i}" value="${site[0]}" style="width: 43vw;"></input>
+        ${siteList}
+        <span class="info" id="add-site-${i}">+
+          <div>Add URL to blocklist</div>
+        </span>
         <br/>
         <input type="checkbox" id="regex${i}" ${site[1] ? "checked" : ""}/>
         <span>
@@ -71,7 +85,7 @@ function makeSites(sites, last = false){
     `;
     for(let j = 0; j < 3; j++){
       str += `
-        <span style="width: 10vw; padding: 0px, margin: 0px; display: inline-block;">
+        <span style="width: 10vw; padding: 0px, margin: 0px; display: inline-block; vertical-align: top;">
           <input type="number" id="mins${j}_${i}" value="${site[3 + 2 * j]}" style="width: 7vw;" min="0"></input>
           分
           <input type="number" id="cost${j}_${i}" value="${site[4 + 2 * j]}" style="width: 7vw;" min="0"></input>
@@ -87,6 +101,27 @@ function makeSites(sites, last = false){
     div.innerHTML = str;
     cont.appendChild(div);
   }
+}
+
+function updateSites(){
+  let sites = [];
+  let len = $("container").childNodes.length;
+
+  for(let i = 0; i < len; i++){
+    if(!sites[i]) sites[i] = [];
+    sites[i][0] = [...$("link" + i)].map(_ => _.value);
+    sites[i][1] = $("regex" + i).checked;
+    sites[i][2] = $("reg_type" + i).value;
+    sites[i][9] = $("onload" + i).checked;
+    for(let j = 0; j < 3; j++){
+      sites[i][3 + 2 * j] = $(`mins${j}_` + i).value;
+      sites[i][4 + 2 * j] = $(`cost${j}_` + i).value;
+    }
+  }
+
+  console.log(sites);
+
+  return sites;
 }
 
 let get_list = [
@@ -157,7 +192,7 @@ get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -1
     }
     
     sites.push([
-      "example.com",
+      ["example.com"],
       false,
       "gi",
       ...times,
@@ -188,22 +223,17 @@ get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -1
     _[18] = $("right_extra").value;
     _[19] = $("use_svg").checked;
     
+    sites = updateSites();
+  
     let len = $("container").childNodes.length;
 
-    for(let i = 0; i < len; i++){
-      if(!sites[i]) sites[i] = [];
-      sites[i][0] = $("link" + i).value;
-      sites[i][1] = $("regex" + i).checked;
-      sites[i][2] = $("reg_type" + i).value;
-      sites[i][9] = $("onload" + i).checked;
-      for(let j = 0; j < 3; j++){
-        sites[i][3 + 2 * j] = $(`mins${j}_` + i).value;
-        sites[i][4 + 2 * j] = $(`cost${j}_` + i).value;
-      }
-    }
-    
     for(let i = len - 1; i >= 0; i--){
-      if(sites[i][0].replace(/\s/g, "") == ""){
+      for(let j =  sites[i][0].length - 1; j >= 0; j--){
+        if(sites[i][0][j].replace(/\s/g, "") == ""){
+          sites[i][0].splice(j, 1);
+        }
+      }
+      if(!sites[i][0].length){
         sites.splice(i, 1);
         _[12].splice(i, 1);
       }
@@ -220,4 +250,14 @@ get(get_list, [[], -2, 2, 1, true, 15, true, 3, 25, 0, 10, "lt", [], true, 0, -1
       window.location.reload();
     });
   };
+
+  window.addEventListener("click", e => {
+    if(e.target.id.slice(0, 9) == "add-site-"){
+      let num = +e.target.id.split("-")[2];
+      
+      sites = updateSites();
+      sites[num][0].push("example.com");
+      makeSites(sites);
+    }
+  });
 });

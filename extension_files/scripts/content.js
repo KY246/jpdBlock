@@ -213,17 +213,22 @@ function run(c){
     // See if URL matches one on block list
     let matchId = -1;
     l1:for(let i = 0; i < c[9].length; i++){
-      if(c[9][i][1]){
-        let regex = new RegExp(c[9][i][0], c[9][i][2]);
-        
-        if(regex.test(location.href)){
-          matchId = i;
-          break l1;
-        }
-      }else{
-        if(location.href.indexOf(c[9][i][0]) != -1){
-          matchId = i;
-          break l1;
+      // Convert old site format to new
+      if(typeof c[9][i][0] == "string") c[9][i][0] = [c[9][i][0]];
+
+      for(let j = 0; j < c[9][i][0].length; j++){
+        if(c[9][i][1]){
+          let regex = new RegExp(c[9][i][0][j], c[9][i][2]);
+          
+          if(regex.test(location.href)){
+            matchId = i;
+            break l1;
+          }
+        }else{
+          if(location.href.indexOf(c[9][i][0][j]) != -1){
+            matchId = i;
+            break l1;
+          }
         }
       }
     }
