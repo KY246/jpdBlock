@@ -16,6 +16,26 @@ browser.tabs.onUpdated.addListener(tabId => {
   });
 });
 */
+
+
+const set = (key, value, after) => {
+  let info = {};
+  if(typeof key == "object"){
+    for(let i = 0; i < key.length; i++){
+      info[key[i]] = value[i];
+    }
+  }else{
+    info[key] = value;
+  }
+  
+  browser.storage.local.set(info).then(() => {
+    if(after){
+      after(value);
+    }
+  });
+};
+
+
 const get = (key, value, after) => {
   if(typeof key != "object"){
     key = [key];
